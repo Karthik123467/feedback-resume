@@ -4,22 +4,24 @@ from PyPDF2 import PdfReader
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load API key from Streamlit secrets or .env
 if "OPENAI_API_KEY" in st.secrets:
     api_key = st.secrets["OPENAI_API_KEY"]
 else:
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
 
-# Check if API key is available
+# Check if API key exists and set it as env variable
 if not api_key:
-    st.error("❌ OpenAI API key not found. Please set it in .env or Streamlit secrets.")
+    st.error("❌ OpenAI API key not found. Please add it to .env or Streamlit Secrets.")
     st.stop()
+else:
+    os.environ["OPENAI_API_KEY"] = api_key
 
-# Initialize OpenAI client
-client = OpenAI(api_key=api_key)
+# Initialize OpenAI client (no need to pass api_key explicitly)
+client = OpenAI()
 
-# Function to extract text from uploaded PDF
+# Function to extract text from PDF
 def extract_text_from_pdf(uploaded_file):
     pdf = PdfReader(uploaded_file)
     text = ""
@@ -27,7 +29,7 @@ def extract_text_from_pdf(uploaded_file):
         text += page.extract_text()
     return text
 
-# Function to get resume feedback
+# Function to get feedback
 def get_resume_feedback(resume_text):
     prompt = f"""
 You are an expert career coach and recruiter.
