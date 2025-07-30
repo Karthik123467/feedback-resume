@@ -4,14 +4,20 @@ from PyPDF2 import PdfReader
 import os
 from dotenv import load_dotenv
 
-# Load API key
+# Load environment variables
 if "OPENAI_API_KEY" in st.secrets:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+    api_key = st.secrets["OPENAI_API_KEY"]
 else:
     load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY")
+
+# Check if API key is available
+if not api_key:
+    st.error("❌ OpenAI API key not found. Please set it in .env or Streamlit secrets.")
+    st.stop()
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=api_key)
 
 # Function to extract text from uploaded PDF
 def extract_text_from_pdf(uploaded_file):
